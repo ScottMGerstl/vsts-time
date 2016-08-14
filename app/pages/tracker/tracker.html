@@ -1,0 +1,8 @@
+<StackLayout>
+    <TextField hint="Work item number" keyboardType="number" [(ngModel)]="workItemNumber"
+      autocorrect="false" autoCapitalizationType="none"></TextField>
+
+      <Button [text]="isTracking ? 'Stop' : 'Start'" class="timer-button" (tap)="toggleTracking()"></Button>
+
+      <TextView [text]="elapsedTime"></TextView>
+</StackLayout>
