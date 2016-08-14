@@ -1,11 +1,9 @@
 import { Component, NgZone } from "@angular/core";
 import { Timer } from "../../shared/timer/timer";
-import * as timer from "timer";
-import * as moment from "moment";
+import { InputTimer } from "../../shared/timer/input-timer";
 
 @Component({
     selector: "tracker",
-    providers: [],
     templateUrl: "pages/tracker/tracker.html",
     styleUrls: ["pages/tracker/tracker-common.css", "pages/tracker/tracker.css"]
 })
@@ -13,7 +11,7 @@ export class TrackerPage {
 
     // Work Item Number vars
     private workItemNumber: string;
-    private workitemWaitTimerRef: number;
+    private workItemInputWaitTimer: InputTimer;
 
     // Timer vars
     private duration: Timer;
@@ -22,6 +20,7 @@ export class TrackerPage {
 
     constructor(private _zone: NgZone) {
         this.duration = new Timer();
+        this.workItemInputWaitTimer = new InputTimer(() => this.retrieveWorkItem(), 700);
     }
 
     /**
@@ -31,32 +30,18 @@ export class TrackerPage {
      */
     private onWorkItemNumberChanged(event: any): void {
 
+        // Get the text field value
         let workItemNumberTextFieldValue: string = event.value;
 
+        // protect against multiple fires of the event
         if(workItemNumberTextFieldValue != this.workItemNumber) {
+
+            // assign to component field
             this.workItemNumber = workItemNumberTextFieldValue;
-            this.startWorkItemTimer();
-        }
-    }
 
-    /**
-     * Start a timer to retrieve the work item allowing the user to finish typing before the work item is retrieved
-     *
-     * @private
-     */
-    private startWorkItemTimer(): void {
-        // If a timer is running clear it out so it starts over
-        if(this.workitemWaitTimerRef) {
-            timer.clearTimeout(this.workitemWaitTimerRef);
+            // Allow the user some time and then execute the callback defined in the constructor
+            this.workItemInputWaitTimer.startOrRestart();
         }
-
-        // give the user some time to finish typing
-        this.workitemWaitTimerRef = timer.setTimeout(() => {
-            // If the work item is blank after the timer ends, don't make the call
-            if (this.workItemNumber !== "" && this.workItemNumber !== undefined && this.workItemNumber !== null) {
-                this.retrieveWorkItem();
-            }
-        }, 700);
     }
 
     /**
@@ -65,7 +50,9 @@ export class TrackerPage {
      * @private
      */
     private retrieveWorkItem(): void {
-        console.log(`getting work item ${this.workItemNumber}`);
+        if (this.workItemNumber !== "" && this.workItemNumber !== undefined && this.workItemNumber !== null) {
+            console.log(`getting work item ${this.workItemNumber}`);
+        }
     }
 
     /**

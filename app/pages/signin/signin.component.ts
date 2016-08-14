@@ -1,8 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { User } from "../../shared/user/user.model";
 import { AuthService } from "../../shared/auth/auth.service";
 
+import { User } from "../../shared/user/user.model";
 import { Page } from "ui/page";
 
 declare var btoa: Function;
