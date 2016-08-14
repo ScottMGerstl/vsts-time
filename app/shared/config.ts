@@ -1,5 +1,8 @@
 export class Config {
-    public getApiUrl(instance: string) {
-        return `https://${instance}.visualstudio.com/Development/_apis/`;
+    public static instance: string;
+    public static token: string;
+
+    public static get apiUrl() {
+        return `https://${this.instance}.visualstudio.com/Development/_apis/`;
     }
 }

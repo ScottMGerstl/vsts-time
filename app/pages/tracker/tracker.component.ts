@@ -1,4 +1,5 @@
-import { Component, NgZone } from "@angular/core";
+import { Component, NgZone, ElementRef, ViewChild } from "@angular/core";
+import { TextField } from "ui/text-field";
 import { Timer } from "../../shared/timer/timer";
 import * as moment from "moment";
 import * as timer from "timer";
@@ -10,12 +11,26 @@ import * as timer from "timer";
     styleUrls: ["pages/tracker/tracker-common.css", "pages/tracker/tracker.css"]
 })
 export class TrackerPage {
+
+    @ViewChild("workItemNumberField") private workItemNumberField: ElementRef;
+    private workItemNumber: string;
+
     private duration: Timer;
     private isTracking: boolean = false;
     private elapsedTime: string;
 
     constructor(private _zone: NgZone) {
         this.duration = new Timer();
+    }
+
+    private onWorkItemNumberChanged() {
+        console.log((<TextField>(this.workItemNumberField.nativeElement)).text);
+        let workItemNumberTextFieldValue: string = (<TextField>(this.workItemNumberField.nativeElement)).text;
+
+        if(workItemNumberTextFieldValue != this.workItemNumber) {
+            this.workItemNumber = workItemNumberTextFieldValue;
+            //console.log(this.workItemNumber);
+        }
     }
 
     private toggleTracking() {

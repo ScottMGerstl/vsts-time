@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs/Rx";
+import { Config } from "../../shared/config";
 import { User } from "../user/user.model";
 import { base64Encode } from "../../utils/base64.util";
 
@@ -15,6 +16,9 @@ export class AuthService {
     public getToken(user: User): Observable<string>
     {
         let token = base64Encode(`${user.email}:${user.password}`);
+        Config.instance = user.instance;
+        Config.token = token;
+
         return Observable.from([token]);
     }
 }

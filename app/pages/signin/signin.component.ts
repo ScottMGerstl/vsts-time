@@ -21,6 +21,7 @@ export class SignInPage implements OnInit {
     this.user = new User();
     this.user.email = "sgerstl@bhtp.com";
     this.user.password = "bhTravel528*";
+    this.user.instance = "bhsc";
   }
 
   public ngOnInit(): void {
