@@ -1,8 +1,24 @@
 <StackLayout>
-    <TextField #workItemNumberField hint="Work item number" keyboardType="number"
+    <TextField #workItemNumberField hint="Work item number" keyboardType="number" [editable]="!isTracking"
       autocorrect="false" autoCapitalizationType="none" (propertyChange)="onWorkItemNumberChanged($event)"></TextField>
 
+      <Label [text]="workItem?.title"></Label>
       <Button [text]="isTracking ? 'Stop' : 'Start'" class="timer-button" (tap)="toggleTracking()"></Button>
 
-      <TextView [text]="elapsedTime"></TextView>
+      <StackLayout [class.hidden]="!workItem">
+        <Label [text]="'Assigned To: ' + workItem?.assignedTo || 'Unassigned'"></Label>
+        <Label [text]="'Type: ' + workItem?.type"></Label>
+        <Label [text]="'Status: ' + workItem?.status"></Label>
+        <Label [text]="'Completed: ' + workItem?.completedTime || 0"></Label>
+        <Label [text]="'Remaining: ' + workItem?.remainingTime || 0"></Label>
+        <Label [text]="'Original: ' + workItem?.originalEstimate || 0"></Label>
+      </StackLayout>
+
+      <Label [text]="ellapsedTime"></Label>
+
+      <ListView [items]="times">
+        <template let-item="item">
+          <Label [text]="item.workItemNumber + ': ' + item.readableTimeSpent"></Label>
+        </template>
+    </ListView>
 </StackLayout>

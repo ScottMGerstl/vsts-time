@@ -1,26 +1,40 @@
-import { Component, NgZone } from "@angular/core";
+import { Component, NgZone, ElementRef, ViewChild } from "@angular/core";
 import { Timer } from "../../shared/timer/timer";
 import { InputTimer } from "../../shared/timer/input-timer";
 
+import { TextField } from "ui/text-field";
+
+import { WorkItemService } from "../../shared/work-item/work-item.service";
+import { WorkItem } from "../../shared/work-item/work-item.model";
+
 @Component({
     selector: "tracker",
+    providers: [WorkItemService],
     templateUrl: "pages/tracker/tracker.html",
     styleUrls: ["pages/tracker/tracker-common.css", "pages/tracker/tracker.css"]
 })
 export class TrackerPage {
 
-    // Work Item Number vars
+    @ViewChild("workItemNumberField") private workItemNumberField: ElementRef;
+
+    // Work Item vars
     private workItemNumber: string;
     private workItemInputWaitTimer: InputTimer;
+    private workItem: WorkItem;
 
     // Timer vars
     private duration: Timer;
     private isTracking: boolean = false;
-    private elapsedTime: string;
+    private ellapsedTime: string;
 
-    constructor(private _zone: NgZone) {
+    // history
+    private times: List<any>;
+
+    constructor(private _zone: NgZone, private _workItemService: WorkItemService) {
         this.duration = new Timer();
         this.workItemInputWaitTimer = new InputTimer(() => this.retrieveWorkItem(), 700);
+
+        this.times = [];
     }
 
     /**
@@ -30,17 +44,22 @@ export class TrackerPage {
      */
     private onWorkItemNumberChanged(event: any): void {
 
-        // Get the text field value
-        let workItemNumberTextFieldValue: string = event.value;
+        // Make sure it was text that changed
+        if (event.propertyName === "text") {
 
-        // protect against multiple fires of the event
-        if(workItemNumberTextFieldValue != this.workItemNumber) {
+            // Get the text field value
+            let workItemNumberTextFieldValue: string = event.value;
 
-            // assign to component field
-            this.workItemNumber = workItemNumberTextFieldValue;
+            // protect against multiple fires of the event
+            if(workItemNumberTextFieldValue != this.workItemNumber) {
 
-            // Allow the user some time and then execute the callback defined in the constructor
-            this.workItemInputWaitTimer.startOrRestart();
+                // assign the field value and dispose of previous data
+                this.disposeWorkItemInfo();
+                this.workItemNumber = workItemNumberTextFieldValue;
+
+                // Allow the user some time and then execute the callback defined in the constructor
+                this.workItemInputWaitTimer.startOrRestart();
+            }
         }
     }
 
@@ -51,8 +70,21 @@ export class TrackerPage {
      */
     private retrieveWorkItem(): void {
         if (this.workItemNumber !== "" && this.workItemNumber !== undefined && this.workItemNumber !== null) {
-            console.log(`getting work item ${this.workItemNumber}`);
+            this._workItemService.getWorkItem(parseInt(this.workItemNumber)).subscribe(
+                (workItems) => this.onWorkItemRecieved(workItems),
+                () => alert(`There was a problem trying to get the work item #${this.workItemNumber}`)
+            );
         }
+    }
+
+    /**
+     * handles the work item after it has been receieved from the server
+     *
+     * @private
+     * @param {WorkItem} workItem
+     */
+    private onWorkItemRecieved(workItem: WorkItem): void {
+        this.workItem = workItem;
     }
 
     /**
@@ -77,8 +109,9 @@ export class TrackerPage {
      * @private
      */
     private startTimer(): void {
-        this.elapsedTime = null;
-        this.duration.start(() => this.updateEllapsedTime(), 60000);
+        this.dismissKeyboard(this.workItemNumberField);
+        this.ellapsedTime = null;
+        this.duration.start(() => this.updateEllapsedTime(), 30000);
         this.updateEllapsedTime();
     }
 
@@ -89,6 +122,11 @@ export class TrackerPage {
      */
     private stopTimer(): void {
         this.duration.stop();
+        this.times.push({
+            workItemNumber: this.workItem.id,
+            timeSpent: this.duration.getEllapsedMilliseconds(),
+            readableTimeSpent: this.duration.getEllapsedReadableTime()
+        });
         this.updateEllapsedTime();
     }
 
@@ -99,7 +137,24 @@ export class TrackerPage {
      */
     private updateEllapsedTime() {
         this._zone.run(() => {
-            this.elapsedTime = this.duration.getEllapsedReadableTime();
+            this.ellapsedTime = this.duration.getEllapsedReadableTime();
         })
+    }
+
+    /**
+     * dismisses the keyboard
+     *
+     * @private
+     * @param {ElementRef} textField the textfield that should have the keyboard dismissed
+     */
+    private dismissKeyboard(textField: ElementRef): void {
+        let field = <TextField>textField.nativeElement;
+        field.dismissSoftInput();
+    }
+
+    private disposeWorkItemInfo(): void {
+        this.workItemNumber = null;
+        this.workItem = null;
+        this.ellapsedTime = null;
     }
 }

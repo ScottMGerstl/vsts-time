@@ -3,6 +3,6 @@ export class Config {
     public static token: string;
 
     public static get apiUrl() {
-        return `https://${this.instance}.visualstudio.com/Development/_apis/`;
+        return `https://${this.instance}.visualstudio.com/DefaultCollection/_apis/`;
     }
 }
