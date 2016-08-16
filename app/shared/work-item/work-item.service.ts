@@ -5,7 +5,7 @@ import "rxjs/add/operator/map";
 
 import { Http, Headers, Response } from "@angular/http";
 import { WorkItem } from "./work-item.model";
-import { WorkItemUpdate } from "./work-item-update.model";
+import { WorkItemUpdate, WorkItemUpdateList } from "./work-item-update.model";
 import { VstsFieldDefinitions } from "./vsts-field-definitions";
 
 @Injectable()
@@ -25,11 +25,17 @@ export class WorkItemService extends BaseService {
 
         let url: string = this.createUrl(`wit/workitems?ids=${id}&api-version=1.0`);
 
-        return this._http.get(url, { headers: this.getHeadersWithAuth() })
-        .map(res => res.json())
+        return this.getWorkItems([id])
         .map(data => this.mapToWorkItem(data.value[0]))
         .catch(this.handleErrors);
     }
+
+    // public queryUserWorkItems(): Observable<WorkItem[]> {
+    //     let query: string = `Select [System.Id] From WorkItems Where [System.AssignedTo] = '${this.getUserEmail()}' And [System.State]='Active' And [System.WorkItemType]='Task'`;
+    //     this.runFlatWorkItemQuery(query).flatMap(
+
+    //     )
+    // }
 
     // Stories: 11052,11053,11054,11055
     // Bugs: 11056,11057,11058,11059
@@ -45,30 +51,70 @@ export class WorkItemService extends BaseService {
      */
     public updateTimes(workItem: WorkItem, msToUpdate: number): Observable<WorkItem> {
 
+        // check for supported types
         if (workItem.type !== "Bug" && workItem.type !== "Task") {
             return Observable.throw(`Time cannot be updated for ${workItem.type}s`);
         }
 
-        let trackedTime = this.convertMsToRoundedHours(msToUpdate);
-        workItem.completedTime = (workItem.completedTime || 0) + trackedTime;
-        workItem.remainingTime = (workItem.remainingTime || 0) - trackedTime;
+        // Because immutable
+        let workItemToUpdate: WorkItem = Object.assign(workItem);
 
-        if(workItem.remainingTime < 0) {
-            workItem.remainingTime = 0;
+        // update times
+        let trackedTime = this.convertMsToRoundedHours(msToUpdate);
+        workItemToUpdate.completedTime = (workItemToUpdate.completedTime || 0) + trackedTime;
+        workItemToUpdate.remainingTime = (workItemToUpdate.remainingTime || 0) - trackedTime;
+
+        // resolve negative
+        if (workItemToUpdate.remainingTime < 0) {
+            workItemToUpdate.remainingTime = 0;
         }
 
-        let updateDefinition: any = [{
-                "op": "replace",
-                "path": "/fields/Microsoft.VSTS.Scheduling.CompletedWork",
-                "value": workItem.completedTime
-            },{
-                "op": "replace",
-                "path": "/fields/Microsoft.VSTS.Scheduling.RemainingWork",
-                "value": workItem.remainingTime
-            }
-        ];
+        // add to update definition
+        let updates: WorkItemUpdateList = new WorkItemUpdateList();
+        updates.addCompletedTime(workItemToUpdate.completedTime);
+        updates.addRemainingTime(workItemToUpdate.remainingTime);
 
-        return this.updateWorkItem(workItem.id, updateDefinition);
+        return this.updateWorkItem(workItemToUpdate.id, updates);
+    }
+
+    /**
+     * Get the work items that correspond to the passed in ids
+     *
+     * @private
+     * @param {number[]} ids the work items to get
+     * @returns {Observable<any>} the raw data returned from vsts
+     */
+    private getWorkItems(ids: number[]): Observable<any> {
+
+        let url: string = this.createUrl(`wit/workitems?ids=${ids.join(",")}&api-version=1.0`);
+
+        return this._http.get(url, { headers: this.getHeadersWithAuth() })
+        .map(res => res.json())
+        .catch(this.handleErrors);
+    }
+
+    /**
+     * Run a flat query that retrieves work item ids
+     *
+     * @private
+     * @param {string} queryString the query to run
+     * @returns {Observable<number[]>} the ids returned from the query
+     */
+    private runFlatWorkItemQuery(queryString: string): Observable<number[]> {
+        let url: string = this.createUrl(`wit/wiql?api-version=1.0`);
+        let body: any = { query: queryString };
+
+        let headers = this.getHeadersWithAuth();
+        headers.append("Content-Type", "application/json");
+
+        return this._http.post(url, body, { headers: headers })
+        .map(res => res.json())
+        .map(data => {
+            let ids = [];
+            data.workItems.forEach(element => { ids.push(element.id); });
+            return ids;
+        })
+        .catch(this.handleErrors);
     }
 
     /**
@@ -79,13 +125,13 @@ export class WorkItemService extends BaseService {
      * @param {WorkItemUpdate[]} updateDefinition
      * @returns
      */
-    private updateWorkItem(workItemId: number, updateDefinition: WorkItemUpdate[]) {
+    private updateWorkItem(workItemId: number, updateDefinition: WorkItemUpdateList) {
         let headers: Headers = this.getHeadersWithAuth();
         headers.append("Content-Type", "application/json-patch+json");
 
         let url: string = this.createUrl(`wit/workitems/${workItemId}?api-version=1.0`);
 
-        return this._http.patch(url, updateDefinition, { headers: headers })
+        return this._http.patch(url, updateDefinition.resolveToArray(), { headers: headers })
         .map(res => res.json())
         .map(data => this.mapToWorkItem(data))
         .catch(this.handleErrors);

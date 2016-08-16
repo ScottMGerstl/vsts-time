@@ -24,6 +24,10 @@ export abstract class BaseService {
         return url;
     }
 
+    protected getUserEmail(): string {
+        return Config.userEmail;
+    }
+
     protected handleErrors(error: Response): Observable<any> {
         console.log(JSON.stringify(error.json()));
         return Observable.throw(error);

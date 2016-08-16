@@ -18,6 +18,7 @@ export class AuthService {
         let token = base64Encode(`${user.email}:${user.password}`);
         Config.instance = user.instance;
         Config.token = token;
+        Config.userEmail = user.email;
 
         return Observable.from([token]);
     }

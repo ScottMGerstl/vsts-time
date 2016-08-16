@@ -12,7 +12,17 @@ export class WorkItemUpdate {
     }
 }
 
-export class WorkItemUpdateList extends Array<WorkItemUpdate> {
+export class WorkItemUpdateList {
+
+    private updateDefinition: WorkItemUpdate[];
+
+    constructor() {
+        this.updateDefinition = [];
+    }
+
+    public resolveToArray(): WorkItemUpdate[] {
+        return this.updateDefinition;
+    }
 
     /**
      * Adds the completed time field to the updates
@@ -20,7 +30,7 @@ export class WorkItemUpdateList extends Array<WorkItemUpdate> {
      * @param {number} time The new time to record
      */
     public addCompletedTime(time: number): void {
-        this.push(new WorkItemUpdate(VstsFieldDefinitions.completedTimeField, time));
+        this.updateDefinition.push(new WorkItemUpdate(VstsFieldDefinitions.completedTimeField, time));
     }
 
     /**
@@ -29,7 +39,7 @@ export class WorkItemUpdateList extends Array<WorkItemUpdate> {
      * @param {number} time The new time to record
      */
     public addRemainingTime(time: number): void {
-        this.push(new WorkItemUpdate(VstsFieldDefinitions.remainingTimeField, time));
+        this.updateDefinition.push(new WorkItemUpdate(VstsFieldDefinitions.remainingTimeField, time));
     }
 
     /**
@@ -38,6 +48,6 @@ export class WorkItemUpdateList extends Array<WorkItemUpdate> {
      * @param {string} status The desired status
      */
     public addStatus(status: string) {
-        this.push(new WorkItemUpdate(VstsFieldDefinitions.statusField, status));
+        this.updateDefinition.push(new WorkItemUpdate(VstsFieldDefinitions.statusField, status));
     }
 }
