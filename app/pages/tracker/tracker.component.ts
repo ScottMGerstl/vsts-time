@@ -28,13 +28,13 @@ export class TrackerPage {
     private ellapsedTime: string;
 
     // history
-    private times: List<any>;
+    private timeLog: List<any>;
 
     constructor(private _zone: NgZone, private _workItemService: WorkItemService) {
         this.duration = new Timer();
         this.workItemInputWaitTimer = new InputTimer(() => this.retrieveWorkItem(), 700);
 
-        this.times = [];
+        this.timeLog = [];
     }
 
     /**
@@ -122,12 +122,12 @@ export class TrackerPage {
      */
     private stopTimer(): void {
         this.duration.stop();
-        this.times.push({
-            workItemNumber: this.workItem.id,
-            timeSpent: this.duration.getEllapsedMilliseconds(),
-            readableTimeSpent: this.duration.getEllapsedReadableTime()
-        });
+        this.addTimeToHistory();
         this.updateEllapsedTime();
+        this._workItemService.updateTimes(this.workItem, this.duration.getEllapsedMilliseconds()).subscribe(
+            () => {},
+            (errorMessage) => alert(errorMessage)
+        );
     }
 
     /**
@@ -142,6 +142,19 @@ export class TrackerPage {
     }
 
     /**
+     * TEMPORARY? adds the work item and time to a history log
+     *
+     * @private
+     */
+    private addTimeToHistory(): void {
+        this.timeLog.push({
+            workItemNumber: this.workItem.id,
+            timeSpent: this.duration.getEllapsedMilliseconds(),
+            readableTimeSpent: this.duration.getEllapsedReadableTime()
+        });
+    }
+
+    /**
      * dismisses the keyboard
      *
      * @private
@@ -152,6 +165,12 @@ export class TrackerPage {
         field.dismissSoftInput();
     }
 
+    /**
+     * Destroys all work item information. Should be used when the
+     * user changes the work item number to track
+     *
+     * @private
+     */
     private disposeWorkItemInfo(): void {
         this.workItemNumber = null;
         this.workItem = null;
