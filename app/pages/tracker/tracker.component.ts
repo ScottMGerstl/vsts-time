@@ -1,6 +1,6 @@
 import { Component, NgZone, ElementRef, ViewChild } from "@angular/core";
+
 import { convertMsToRoundedHours } from "../../shared/time/time-conversions";
-import { Timer } from "../../shared/time/timer";
 import { InputTimer } from "../../shared/time/input-timer";
 import { TimeTrackerComponent } from "../../components/time-tracker/time-tracker.component";
 
