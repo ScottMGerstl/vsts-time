@@ -8,6 +8,8 @@ import { WorkItem } from "./work-item.model";
 import { WorkItemUpdate, WorkItemUpdateList } from "./work-item-update.model";
 import { VstsFieldDefinitions } from "./vsts-field-definitions";
 
+import { convertMsToRoundedHours } from "../time/time-conversions";
+
 @Injectable()
 export class WorkItemService extends BaseService {
 
@@ -77,7 +79,7 @@ export class WorkItemService extends BaseService {
         let workItemToUpdate: WorkItem = Object.assign(workItem);
 
         // update times
-        let trackedTime = this.convertMsToRoundedHours(msToUpdate);
+        let trackedTime = convertMsToRoundedHours(msToUpdate);
         workItemToUpdate.completedTime = (workItemToUpdate.completedTime || 0) + trackedTime;
         workItemToUpdate.remainingTime = (workItemToUpdate.remainingTime || 0) - trackedTime;
 
@@ -152,18 +154,6 @@ export class WorkItemService extends BaseService {
             .map(res => res.json())
             .map(data => this.mapToWorkItem(data))
             .catch(this.handleErrors);
-    }
-
-    /**
-     * Converts milliseconds into hours rounded to 2 decimal places
-     *
-     * @private
-     * @param {number} ms the milliseconds to convert
-     * @returns {number} the rounded hours (e.g. 1.02)
-     */
-    private convertMsToRoundedHours(ms: number): number {
-        let hours: number = parseFloat((ms / 1000 / 60 / 60).toFixed(2));
-        return hours;
     }
 
     /**

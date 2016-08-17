@@ -1,6 +1,8 @@
 import { Component, NgZone, ElementRef, ViewChild } from "@angular/core";
-import { Timer } from "../../shared/timer/timer";
-import { InputTimer } from "../../shared/timer/input-timer";
+import { convertMsToRoundedHours } from "../../shared/time/time-conversions";
+import { Timer } from "../../shared/time/timer";
+import { InputTimer } from "../../shared/time/input-timer";
+import { TimeTrackerComponent } from "../../components/time-tracker/time-tracker.component";
 
 import { TextField } from "ui/text-field";
 
@@ -10,22 +12,19 @@ import { WorkItem } from "../../shared/work-item/work-item.model";
 @Component({
     selector: "tracker",
     providers: [WorkItemService],
+    directives: [TimeTrackerComponent],
     templateUrl: "pages/tracker/tracker.html",
     styleUrls: ["pages/tracker/tracker-common.css", "pages/tracker/tracker.css"]
 })
 export class TrackerPage {
 
     @ViewChild("workItemNumberField") private workItemNumberField: ElementRef;
+    @ViewChild(TimeTrackerComponent) private timeTracker: TimeTrackerComponent;
 
     // Work Item vars
     private workItemNumber: string;
     private workItemInputWaitTimer: InputTimer;
     private workItem: WorkItem;
-
-    // Timer vars
-    private duration: Timer;
-    private isTracking: boolean = false;
-    private ellapsedTime: string;
 
     // history
     private timeLog: List<any>;
@@ -34,10 +33,23 @@ export class TrackerPage {
     private userWorkItems: WorkItem[];
 
     constructor(private _zone: NgZone, private _workItemService: WorkItemService) {
-        this.duration = new Timer();
         this.workItemInputWaitTimer = new InputTimer(() => this.retrieveWorkItem(), 700);
-
         this.timeLog = [];
+    }
+
+    private onTimerStarted(): void {
+        this.dismissKeyboard(this.workItemNumberField);
+    }
+
+    private onTimerStopped(timeEllapsed): void {
+        if (this.workItem) {
+            this.addTimeToHistory(timeEllapsed);
+            this._workItemService.updateTimes(this.workItem, timeEllapsed)
+            .subscribe(
+                () => { },
+                (errorMessage) => alert(errorMessage)
+            );
+        }
     }
 
     /**
@@ -54,7 +66,7 @@ export class TrackerPage {
             let workItemNumberTextFieldValue: string = event.value;
 
             // protect against multiple fires of the event
-            if(workItemNumberTextFieldValue != this.workItemNumber) {
+            if (workItemNumberTextFieldValue != this.workItemNumber) {
 
                 // assign the field value and dispose of previous data
                 this.disposeWorkItemInfo();
@@ -91,74 +103,15 @@ export class TrackerPage {
     }
 
     /**
-     * Main method for managing the state of the time tracker
-     *
-     * @private
-     */
-    private toggleTracking() {
-        if (this.isTracking === true) {
-            this.stopTimer();
-        }
-        else {
-            this.startTimer();
-        }
-
-        this.isTracking = !this.isTracking;
-    }
-
-    /**
-     * starts the timer to track amount of time spent on the work item
-     *
-     * @private
-     */
-    private startTimer(): void {
-        this.dismissKeyboard(this.workItemNumberField);
-        this.ellapsedTime = null;
-        this.duration.start(() => this.updateEllapsedTime(), 30000);
-        this.updateEllapsedTime();
-    }
-
-    /**
-     * stops the timer that is tracking amount of time spent on the work item
-     *
-     * @private
-     */
-    private stopTimer(): void {
-        if(this.isTracking === true) {
-            this.duration.stop();
-
-            if(this.workItem) {
-                this.addTimeToHistory();
-                this.updateEllapsedTime();
-                this._workItemService.updateTimes(this.workItem, this.duration.getEllapsedMilliseconds()).subscribe(
-                    () => {},
-                    (errorMessage) => alert(errorMessage)
-                );
-            }
-        }
-    }
-
-    /**
-     * update the UI to show how much time has passed
-     *
-     * @private
-     */
-    private updateEllapsedTime() {
-        this._zone.run(() => {
-            this.ellapsedTime = this.duration.getEllapsedReadableTime();
-        })
-    }
-
-    /**
      * TEMPORARY? adds the work item and time to a history log
      *
      * @private
      */
-    private addTimeToHistory(): void {
+    private addTimeToHistory(timeEllapsed: number): void {
         this.timeLog.push({
             workItemNumber: this.workItem.id,
-            timeSpent: this.duration.getEllapsedMilliseconds(),
-            readableTimeSpent: this.duration.getEllapsedReadableTime()
+            timeSpent: timeEllapsed,
+            readableTimeSpent: convertMsToRoundedHours(timeEllapsed)
         });
     }
 
@@ -175,7 +128,7 @@ export class TrackerPage {
     }
 
     private onWorkItemTapped(workItem: WorkItem): void {
-        this.stopTimer();
+        this.timeTracker.stopTimer();
         this.disposeWorkItemInfo();
 
         this._zone.run(() => this.workItem = workItem);
@@ -201,6 +154,5 @@ export class TrackerPage {
     private disposeWorkItemInfo(): void {
         this.workItemNumber = null;
         this.workItem = null;
-        this.ellapsedTime = null;
     }
 }

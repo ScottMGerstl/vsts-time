@@ -1,0 +1,4 @@
+<StackLayout>
+    <Button [text]="isTracking ? 'Stop' : 'Start'" class="timer-button" (tap)="toggleTracking()"></Button>
+    <Label [text]="ellapsedTime"></Label>
+</StackLayout>
