@@ -16,7 +16,14 @@
 
       <Label [text]="ellapsedTime"></Label>
 
-      <ListView [items]="times">
+      <Button text="Get my work items" (tap)="getUserWorkItems()"></Button>
+      <ListView [class.hidden]="!userWorkItems" [items]="userWorkItems">
+          <template let-item="item">
+            <Label [text]="item.id + ': ' + item.title" (tap)="onWorkItemTapped(item)"></Label>
+          </template>
+      </ListView>
+
+      <ListView [items]="timeLog">
         <template let-item="item">
           <Label [text]="item.workItemNumber + ': ' + item.readableTimeSpent"></Label>
         </template>

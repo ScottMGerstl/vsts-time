@@ -30,6 +30,9 @@ export class TrackerPage {
     // history
     private timeLog: List<any>;
 
+    // user work items
+    private userWorkItems: WorkItem[];
+
     constructor(private _zone: NgZone, private _workItemService: WorkItemService) {
         this.duration = new Timer();
         this.workItemInputWaitTimer = new InputTimer(() => this.retrieveWorkItem(), 700);
@@ -121,13 +124,18 @@ export class TrackerPage {
      * @private
      */
     private stopTimer(): void {
-        this.duration.stop();
-        this.addTimeToHistory();
-        this.updateEllapsedTime();
-        this._workItemService.updateTimes(this.workItem, this.duration.getEllapsedMilliseconds()).subscribe(
-            () => {},
-            (errorMessage) => alert(errorMessage)
-        );
+        if(this.isTracking === true) {
+            this.duration.stop();
+
+            if(this.workItem) {
+                this.addTimeToHistory();
+                this.updateEllapsedTime();
+                this._workItemService.updateTimes(this.workItem, this.duration.getEllapsedMilliseconds()).subscribe(
+                    () => {},
+                    (errorMessage) => alert(errorMessage)
+                );
+            }
+        }
     }
 
     /**
@@ -152,6 +160,25 @@ export class TrackerPage {
             timeSpent: this.duration.getEllapsedMilliseconds(),
             readableTimeSpent: this.duration.getEllapsedReadableTime()
         });
+    }
+
+    /**
+     * Gets the user's work items
+     *
+     * @private
+     */
+    private getUserWorkItems(): void {
+        this._workItemService.getUserWorkItems().subscribe(
+            (workItems) => this._zone.run(() => this.userWorkItems = workItems),
+            (error) => alert(error)
+        );
+    }
+
+    private onWorkItemTapped(workItem: WorkItem): void {
+        this.stopTimer();
+        this.disposeWorkItemInfo();
+
+        this._zone.run(() => this.workItem = workItem);
     }
 
     /**
