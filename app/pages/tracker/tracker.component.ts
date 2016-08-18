@@ -6,12 +6,11 @@ import { TimeTrackerComponent } from "../../components/time-tracker/time-tracker
 
 import { TextField } from "ui/text-field";
 
-import { WorkItemService } from "../../shared/work-item/work-item.service";
-import { WorkItem } from "../../shared/work-item/work-item.model";
+import { WorkItem, WorkItemLogic, WORK_ITEM_PROVIDERS } from "../../shared/work-item/work-item.barrel";
 
 @Component({
     selector: "tracker",
-    providers: [WorkItemService],
+    providers: [WorkItemLogic, WORK_ITEM_PROVIDERS],
     directives: [TimeTrackerComponent],
     templateUrl: "pages/tracker/tracker.html",
     styleUrls: ["pages/tracker/tracker-common.css", "pages/tracker/tracker.css"]
@@ -32,7 +31,7 @@ export class TrackerPage {
     // user work items
     private userWorkItems: WorkItem[];
 
-    constructor(private _zone: NgZone, private _workItemService: WorkItemService) {
+    constructor(private _zone: NgZone, private _workItemLogic: WorkItemLogic) {
         this.workItemInputWaitTimer = new InputTimer(() => this.retrieveWorkItem(), 700);
         this.timeLog = [];
     }
@@ -44,9 +43,9 @@ export class TrackerPage {
     private onTimerStopped(timeEllapsed): void {
         if (this.workItem) {
             this.addTimeToHistory(timeEllapsed);
-            this._workItemService.updateTimes(this.workItem, timeEllapsed)
+            this._workItemLogic.updateWorkItem(this.workItem, timeEllapsed)
             .subscribe(
-                () => { },
+                (savedWorkItem) => this.workItem = savedWorkItem,
                 (errorMessage) => alert(errorMessage)
             );
         }
@@ -85,7 +84,7 @@ export class TrackerPage {
      */
     private retrieveWorkItem(): void {
         if (this.workItemNumber !== "" && this.workItemNumber !== undefined && this.workItemNumber !== null) {
-            this._workItemService.getWorkItem(parseInt(this.workItemNumber)).subscribe(
+            this._workItemLogic.getWorkItem(parseInt(this.workItemNumber)).subscribe(
                 (workItems) => this.onWorkItemRecieved(workItems),
                 () => alert(`There was a problem trying to get the work item #${this.workItemNumber}`)
             );
@@ -121,7 +120,7 @@ export class TrackerPage {
      * @private
      */
     private getUserWorkItems(): void {
-        this._workItemService.getUserWorkItems().subscribe(
+        this._workItemLogic.getUserWorkItems().subscribe(
             (workItems) => this._zone.run(() => this.userWorkItems = workItems),
             (error) => alert(error)
         );

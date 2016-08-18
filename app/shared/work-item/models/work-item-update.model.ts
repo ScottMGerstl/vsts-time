@@ -1,4 +1,4 @@
-import { VstsFieldDefinitions } from "./vsts-field-definitions";
+import { WorkItemFieldDefinitions } from "./work-item.model";
 
 export class WorkItemUpdate {
     public op: string;
@@ -30,7 +30,7 @@ export class WorkItemUpdateList {
      * @param {number} time The new time to record
      */
     public addCompletedTime(time: number): void {
-        this.updateDefinition.push(new WorkItemUpdate(VstsFieldDefinitions.completedTimeField, time));
+        this.updateDefinition.push(new WorkItemUpdate(WorkItemFieldDefinitions.CompletedTime, time));
     }
 
     /**
@@ -39,7 +39,7 @@ export class WorkItemUpdateList {
      * @param {number} time The new time to record
      */
     public addRemainingTime(time: number): void {
-        this.updateDefinition.push(new WorkItemUpdate(VstsFieldDefinitions.remainingTimeField, time));
+        this.updateDefinition.push(new WorkItemUpdate(WorkItemFieldDefinitions.RemainingTime, time));
     }
 
     /**
@@ -48,6 +48,6 @@ export class WorkItemUpdateList {
      * @param {string} status The desired status
      */
     public addStatus(status: string) {
-        this.updateDefinition.push(new WorkItemUpdate(VstsFieldDefinitions.statusField, status));
+        this.updateDefinition.push(new WorkItemUpdate(WorkItemFieldDefinitions.Status, status));
     }
 }
