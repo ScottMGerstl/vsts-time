@@ -1,4 +1,3 @@
-import * as moment from "moment";
 import * as timer from "timer";
 
 export class Timer {
@@ -63,18 +62,6 @@ export class Timer {
     public getEllapsedMilliseconds(): number {
         let ellapsedMilliseconds: number = (this.stopTime ? this.stopTime.getTime() : new Date().getTime()) - this.startTime.getTime();
         return ellapsedMilliseconds;
-    }
-
-    /**
-     * Gets a human readable string of how much time has ellapsed in the timer. If the timer is not
-     * stopped it will return the currently ellapsed amount of time. if it is stopped, it will
-     * return the amount of time between when the timer was started and when it was stopped.
-     *
-     * @returns {string} a readable string representing the amount of time that has ellapsed
-     */
-    public getEllapsedReadableTime(): string {
-        let result = moment.duration(this.getEllapsedMilliseconds()).humanize();
-        return result;
     }
 
     /**

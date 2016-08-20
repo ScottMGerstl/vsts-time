@@ -10,6 +10,7 @@ export class TimeTrackerComponent {
 
     @Output() private timerStarted: EventEmitter<any> = new EventEmitter<any>(false);
     @Output() private timerStopped: EventEmitter<number> = new EventEmitter<number>(false);
+    @Output() private timerTicked: EventEmitter<number> = new EventEmitter<number>(false);
 
     private duration: Timer;
     private isTracking: boolean = false;
@@ -55,21 +56,21 @@ export class TimeTrackerComponent {
     private startTimer(): void {
         if (this.isTracking === false) {
             this.ellapsedTime = null;
-            this.duration.start(() => this.updateEllapsedTime(), 30000);
+            this.duration.start(() => this.onTimerTick(), 30000);
             this.isTracking = true;
-            this.updateEllapsedTime();
             this.timerStarted.emit(null);
         }
     }
 
     /**
-     * update the UI to show how much time has passed
+     * fire the tick event
      *
      * @private
      */
-    private updateEllapsedTime() {
-        this._zone.run(() => {
-            this.ellapsedTime = this.duration.getEllapsedReadableTime();
-        })
+    private onTimerTick() {
+        this.timerTicked.emit(this.duration.getEllapsedMilliseconds());
+        // this._zone.run(() => {
+        //     this.ellapsedTime = this.duration.getEllapsedReadableTime();
+        // })
     }
 }

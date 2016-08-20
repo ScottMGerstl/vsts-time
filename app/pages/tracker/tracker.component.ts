@@ -1,6 +1,6 @@
 import { Component, NgZone, ElementRef, ViewChild } from "@angular/core";
 
-import { convertMsToRoundedHours } from "../../shared/time/time-conversions";
+import { convertMsToRoundedHours, convertMsToReadableTime } from "../../shared/time/time-conversions";
 import { InputTimer } from "../../shared/time/input-timer";
 import { TimeTrackerComponent } from "../../components/time-tracker/time-tracker.component";
 
@@ -25,6 +25,9 @@ export class TrackerPage {
     private workItemInputWaitTimer: InputTimer;
     private workItem: WorkItem;
 
+    // Time display
+    private ellapsedTime: string;
+
     // history
     private timeLog: List<any>;
 
@@ -34,21 +37,41 @@ export class TrackerPage {
     constructor(private _zone: NgZone, private _workItemLogic: WorkItemLogic) {
         this.workItemInputWaitTimer = new InputTimer(() => this.retrieveWorkItem(), 700);
         this.timeLog = [];
+        this.resetTimerDisplay();
     }
 
     private onTimerStarted(): void {
         this.dismissKeyboard(this.workItemNumberField);
+        this.updateTimerDisplay(0);
     }
 
-    private onTimerStopped(timeEllapsed): void {
+    private onTimerStopped(millisecondsEllapsed: number): void {
         if (this.workItem) {
-            this.addTimeToHistory(timeEllapsed);
-            this._workItemLogic.updateWorkItem(this.workItem, timeEllapsed)
+            this.addTimeToHistory(millisecondsEllapsed);
+            this._workItemLogic.updateWorkItem(this.workItem, millisecondsEllapsed)
             .subscribe(
                 (savedWorkItem) => this.workItem = savedWorkItem,
                 (errorMessage) => alert(errorMessage)
             );
         }
+    }
+
+    private onTimerTicked(millisecondsEllapsed: number): void {
+        this.updateTimerDisplay(millisecondsEllapsed);
+    }
+
+    private resetTimerDisplay(): void {
+        this.updateTimerDisplay(null);
+    }
+
+    private updateTimerDisplay(millisecondsEllapsed: number): void {
+        let displayValue: string = "--:--";
+
+        if (millisecondsEllapsed !== null && millisecondsEllapsed !== undefined) {
+            displayValue = convertMsToReadableTime(millisecondsEllapsed);
+        }
+
+        this._zone.run(() => this.ellapsedTime = displayValue);
     }
 
     /**

@@ -39,10 +39,6 @@ export class WorkItemLogic extends BaseLogic {
         );
     }
 
-    // Stories: 11052,11053,11054,11055
-    // Bugs: 11056,11057,11058,11059
-    // Tasks: 11061,11062,11063
-
     /**
      * Updates the remaining and completed times, and possibly the status, on a work item.
      * If a work item's remaining time results in a number less than zero, it will be set
@@ -83,5 +79,19 @@ export class WorkItemLogic extends BaseLogic {
         }
 
         return this._vstsService.updateWorkItem(workItemToUpdate.id, updates);
+    }
+
+    /**
+     * Closes the work item
+     *
+     * @param {number} id the work item id
+     * @returns {Observable<WorkItem>} the updated work item
+     */
+    public closeWorkItem(workItemId: number): Observable<WorkItem> {
+        let updates: WorkItemUpdateList = new WorkItemUpdateList();
+
+        updates.addStatus(WorkItemStatuses.Closed);
+
+        return this._vstsService.updateWorkItem(workItemId, updates);
     }
 }
