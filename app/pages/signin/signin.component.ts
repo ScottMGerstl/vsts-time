@@ -25,7 +25,7 @@ export class SignInPage implements OnInit {
   }
 
   public ngOnInit(): void {
-    //this._page.actionBarHidden = true;
+    this._page.actionBarHidden = true;
   }
 
   private submit(): void {
