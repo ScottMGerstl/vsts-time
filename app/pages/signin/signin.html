@@ -1,8 +1,17 @@
-<StackLayout #container>
-    <Image src="res://logo_login" stretch="none" horizontalAlignment="center"></Image>
-    <TextField hint="Email Address" keyboardType="email" [(ngModel)]="user.email"
-      autocorrect="false" autoCapitalizationType="none"></TextField>
-    <TextField hint="Password" secure="true" [(ngModel)]="user.password"></TextField>
+<StackLayout class="layout">
+    <StackLayout orientation="horizontal" class="logo-container">
+      <Image src="res://vsts"  horizontalAlignment="right" class="logo"></Image>
+      <Label text="time" class="logo-title" horizontalAlignment="left"></Label>
+    </StackLayout>
+    <GridLayout columns="*, auto" class="instance-container">
+      <TextField hint="instance" autoCapitalizationType="none" col="0" autocorrect="false"
+        [(ngModel)]="user.instance" class="instance-field"></TextField>
+      <Label col="1" text=".visualstudio.com" class="domain-label"></Label>
+    </GridLayout>
+    <TextField hint="email" keyboardType="email" [(ngModel)]="user.email"
+      autocorrect="false" autoCapitalizationType="none" class="user-email">
+    </TextField>
+    <TextField hint="password" secure="true" [(ngModel)]="user.password" class="user-password"></TextField>
 
-    <Button text="Sign in" class="submit-button" (tap)="submit()"></Button>
-  </StackLayout>
+    <Button text="Sign in" class="signin-button" (tap)="submit()"></Button>
+</StackLayout>

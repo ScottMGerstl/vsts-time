@@ -1,0 +1,52 @@
+.layout {
+    width: 75%;
+}
+
+.logo-container {
+    height: 25%;
+    margin-top: 25;
+    margin-bottom: 15;
+}
+
+.logo {
+    height: 130;
+    width: 130;
+}
+
+.logo-title {
+    font-size: 40;
+    color: #000000;
+    vertical-align: center;
+    text-align: left;
+}
+
+.instance-container {
+    font-size: 22;
+    margin-bottom: 15;
+    height: 70;
+}
+
+.instance-field {
+    text-align: right;
+    padding-bottom: 0;
+    margin-bottom: 9;
+}
+
+.domain-label {
+    color: #cccccc;
+    vertical-align: center;
+}
+
+.user-email, .user-password {
+    margin-top: 5;
+}
+
+.signin-button {
+    color: #ffffff;
+    background-color: #9c27b0;
+    width: 100%;
+    padding: 20;
+    margin-top: 55;
+    font-size: 20;
+    font-family: Arial, Helvetica, sans-serif;
+}

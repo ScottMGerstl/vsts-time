@@ -19,13 +19,13 @@ export class SignInPage implements OnInit {
 
   constructor(private _authService: AuthService, private _router: Router, private _page: Page) {
     this.user = new User();
-    this.user.email = "sgerstl@bhtp.com";
     this.user.password = "bhTravel528*";
-    this.user.instance = "bhsc";
+    // this.user.email = "sgerstl@bhtp.com";
+    // this.user.instance = "bhsc";
   }
 
   public ngOnInit(): void {
-    this._page.actionBarHidden = true;
+    //this._page.actionBarHidden = true;
   }
 
   private submit(): void {
