@@ -1,17 +1,25 @@
 <StackLayout class="layout">
-    <StackLayout orientation="horizontal" class="logo-container">
-      <Image src="res://vsts"  horizontalAlignment="right" class="logo"></Image>
-      <Label text="time" class="logo-title" horizontalAlignment="left"></Label>
-    </StackLayout>
-    <GridLayout columns="*, auto" class="instance-container">
-      <TextField hint="instance" autoCapitalizationType="none" col="0" autocorrect="false"
-        [(ngModel)]="user.instance" class="instance-field"></TextField>
+  <StackLayout orientation="horizontal" class="logo-container">
+    <Image src="res://vsts" horizontalAlignment="right" class="logo"></Image>
+    <Label text="time" class="logo-title" horizontalAlignment="left"></Label>
+  </StackLayout>
+
+  <StackLayout class="instance-container">
+    <GridLayout columns="*, auto" class="instance-input-container">
+      <TextField #instance col="0" hint="instance" autoCapitalizationType="none" autocorrect="false" [(ngModel)]="user.instance"
+        class="instance-field"></TextField>
       <Label col="1" text=".visualstudio.com" class="domain-label"></Label>
     </GridLayout>
-    <TextField hint="email" keyboardType="email" [(ngModel)]="user.email"
-      autocorrect="false" autoCapitalizationType="none" class="user-email">
-    </TextField>
-    <TextField hint="password" secure="true" [(ngModel)]="user.password" class="user-password"></TextField>
 
-    <Button text="Sign in" class="signin-button" (tap)="submit()"></Button>
+    <Label class="field-error" [text]="instanceError"></Label>
+  </StackLayout>
+
+  <TextField #email hint="email address" keyboardType="email" [(ngModel)]="user.email" autocorrect="false" autoCapitalizationType="none"
+    class="user-email"></TextField>
+  <Label class="field-error" [text]="emailError"></Label>
+
+  <TextField #password hint="password" secure="true" [(ngModel)]="user.password" class="user-password"></TextField>
+  <Label class="field-error" [text]="passwordError"></Label>
+
+  <Button text="Sign in" class="signin-button" (tap)="submit()"></Button>
 </StackLayout>
