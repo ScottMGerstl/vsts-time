@@ -26,7 +26,7 @@ export class VstsService extends BaseService {
 
         return this.getWorkItems([id])
             .map(data => data[0])
-            .catch(this.handleErrors);
+            .catch(this.handleObservableErrors);
     }
 
     /**
@@ -46,7 +46,7 @@ export class VstsService extends BaseService {
         return this._http.patch(url, updateDefinition.resolveToArray(), { headers: headers })
             .map(res => res.json())
             .map(data => this.mapToWorkItem(data))
-            .catch(this.handleErrors);
+            .catch(this.handleObservableErrors);
     }
 
     /**
@@ -70,7 +70,7 @@ export class VstsService extends BaseService {
                     });
                     return workItems;
             })
-            .catch(this.handleErrors)
+            .catch(this.handleObservableErrors)
     }
 
     /**
@@ -84,7 +84,7 @@ export class VstsService extends BaseService {
         let url: string = this.createUrl(`wit/wiql?api-version=1.0`);
         let body: any = { query: queryString };
 
-        let headers = this.getHeadersWithAuth();
+        let headers: Headers = this.getHeadersWithAuth();
         headers.append("Content-Type", "application/json");
 
         return this._http.post(url, body, { headers: headers })
@@ -94,7 +94,7 @@ export class VstsService extends BaseService {
                 data.workItems.forEach(element => { ids.push(element.id); });
                 return ids;
             })
-            .catch(this.handleErrors);
+            .catch(this.handleObservableErrors);
     }
 
     /**

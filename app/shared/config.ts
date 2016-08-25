@@ -3,7 +3,7 @@ export class Config {
     public static token: string;
     public static userEmail: string;
 
-    public static get apiUrl() {
-        return `https://${this.instance}.visualstudio.com/DefaultCollection/_apis/`;
+    public static getApiUrl(instance: string): string {
+        return `https://${instance}.visualstudio.com/DefaultCollection/_apis/`;
     }
 }

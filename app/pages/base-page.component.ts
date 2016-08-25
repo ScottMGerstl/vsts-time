@@ -3,6 +3,8 @@ import { Component } from "@angular/core";
 import { Page } from "ui/page";
 import { TextField } from "ui/text-field";
 
+import * as Rx from "rxjs";
+
 declare var android: any;
 
 export abstract class BasePage {
@@ -28,5 +30,15 @@ export abstract class BasePage {
 
     private clearUnderlineError(textField: TextField): void {
         textField.android.getBackground().clearColorFilter();
+    }
+
+    protected unsubscribeAll(...subscriptions: Rx.Subscription[]): void {
+        subscriptions.forEach(s => this.unsubscribe(s));
+    }
+
+    protected unsubscribe(subscription: Rx.Subscription): void {
+        if (subscription && subscription.isUnsubscribed === false) {
+            subscription.unsubscribe();
+        }
     }
 }

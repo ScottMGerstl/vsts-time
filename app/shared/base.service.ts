@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
+import { Headers, Response } from "@angular/http";
 import { Observable } from "rxjs/Rx";
 import { Config } from "../shared/config";
-import { Headers } from "@angular/http";
 
 @Injectable()
 export abstract class BaseService {
@@ -20,7 +20,7 @@ export abstract class BaseService {
     }
 
     protected createUrl(endpoint: string): string {
-        let url: string = Config.apiUrl + endpoint;
+        let url: string = Config.getApiUrl(Config.instance) + endpoint;
         return url;
     }
 
@@ -28,8 +28,16 @@ export abstract class BaseService {
         return Config.userEmail;
     }
 
-    protected handleErrors(error: Response): Observable<any> {
-        console.log(JSON.stringify(error.json()));
+    protected handleObservableErrors(error: Response): Observable<any> {
+        this.logError(error);
         return Observable.throw(error);
+    }
+
+    protected handleErrors(error: Response): void {
+        this.logError(error);
+    }
+
+    private logError(error: Response): void {
+        console.log(JSON.stringify(error.json()));
     }
 }

@@ -21,5 +21,6 @@
   <TextField #password hint="password" secure="true" [(ngModel)]="user.password" class="user-password"></TextField>
   <Label class="field-error" [text]="passwordError"></Label>
 
-  <Button text="Sign in" class="signin-button" (tap)="submit()"></Button>
+  <Button text="Sign in" class="signin-button" [class.hidden]="isSigningIn === true" (tap)="onSignInTapped()"></Button>
+  <ActivityIndicator [busy]="isSigningIn" [class.hidden]="isSigningIn === false && pageIsTransitioning === false" class="sign-in-activity-indicator" horizontalAlignment="center" verticalAlignment="center"></ActivityIndicator>
 </StackLayout>

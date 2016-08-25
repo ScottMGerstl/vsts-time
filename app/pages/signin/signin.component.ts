@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild, NgZone } from "@angular/core";
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, NgZone } from "@angular/core";
 import { Router } from "@angular/router";
 import { AuthService } from "../../shared/auth/auth.service";
 
@@ -7,6 +7,8 @@ import { BasePage } from "../base-page.component";
 import { User } from "../../shared/user/user.model";
 import { Page } from "ui/page";
 import { TextField } from "ui/text-field";
+
+import * as Rx from "rxjs";
 
 var emailValidator = require("email-validator");
 declare var android: any;
@@ -17,7 +19,7 @@ declare var android: any;
   templateUrl: "pages/signin/signin.html",
   styleUrls: ["pages/signin/signin-common.css", "pages/signin/signin.css"]
 })
-export class SignInPage extends BasePage implements OnInit {
+export class SignInPage extends BasePage implements OnInit, OnDestroy {
 
   @ViewChild("instance") private instance: ElementRef;
   @ViewChild("email") private email: ElementRef;
@@ -29,30 +31,48 @@ export class SignInPage extends BasePage implements OnInit {
 
   private user: User;
 
+  private isSigningIn: boolean;
+  private signInCompleteSubscription: Rx.Subscription;
+  private signInFailedSubscription: Rx.Subscription;
+
   constructor(protected _page: Page, private _zone: NgZone, private _authService: AuthService, private _router: Router) {
     super(_page);
 
     this.user = new User();
-    // this.user.password = "bhTravel528*";
+    this.user.password = "bhTravel528*";
     this.user.email = "sgerstl@bhtp.com";
-    this.user.instance = "bhsc";
+    // this.user.instance = "bhsc";
   }
 
   public ngOnInit(): void {
+    this.isSigningIn = false;
+
     this.setUiStyles();
+    this.setupAuthSubscriptions();
   }
 
-  private submit(): void {
+  public ngOnDestroy(): void {
+    this.tearDownAuthSubscriptions();
+  }
+
+  private onSignInTapped(): void {
     if (this.validate() === true) {
-      this.login();
+      this.signIn();
     }
   }
 
-  private login(): void {
-    this._authService.getToken(this.user).subscribe(
-      (token) => this._router.navigate(["/tracker"]),
-      (error) => alert("Unfortunately, we could not find your account.")
-    );
+  private signIn(): void {
+    this.isSigningIn = true;
+    this._authService.signIn(this.user);
+  }
+
+  private onSignInComplete(): void {
+    this._router.navigate(["/tracker"]);
+  }
+
+  private onSignInFailed(errorMessage: string): void {
+    this.isSigningIn = false;
+    alert(errorMessage);
   }
 
   private validate(): boolean {
@@ -127,6 +147,15 @@ export class SignInPage extends BasePage implements OnInit {
 
     let passwordField = (<TextField>this.password.nativeElement);
     this.setHintColor(passwordField);
+  }
+
+  private setupAuthSubscriptions(): void {
+    this.signInCompleteSubscription = this._authService.signInComplete.subscribe(() => this.onSignInComplete());
+    this.signInFailedSubscription = this._authService.signInFailed.subscribe((errorMessage: string) => this.onSignInFailed(errorMessage));
+  }
+
+  private tearDownAuthSubscriptions(): void {
+    this.unsubscribeAll(this.signInCompleteSubscription, this.signInFailedSubscription);
   }
 
   private hasValue(textField: TextField): boolean {
