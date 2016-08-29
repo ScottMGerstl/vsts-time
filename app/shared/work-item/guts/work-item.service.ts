@@ -1,18 +1,19 @@
 import { Injectable, provide } from "@angular/core";
-import { BaseLogic } from "../../base.logic";
+import { BaseService } from "../../base.service";
+import { AuthService } from "../../auth/guts/auth.service";
 import { Observable } from "rxjs/Rx";
 import "rxjs/add/operator/map";
 
-import { WorkItem, WorkItemTypes, WorkItemStatuses } from "../models/work-item.model";
-import { WorkItemUpdate, WorkItemUpdateList } from "../models/work-item-update.model";
+import { WorkItem, WorkItemTypes, WorkItemStatuses } from "./work-item.model";
+import { WorkItemUpdate, WorkItemUpdateList } from "./work-item-update.model";
 import { convertMsToRoundedHours } from "../../time/time-conversions";
 
-import { VstsService } from "../services/vsts.service";
+import { VstsService } from "./vsts.service";
 
 @Injectable()
-export class WorkItemLogic extends BaseLogic {
+export class WorkItemService extends BaseService {
 
-    constructor(private _vstsService: VstsService) {
+    constructor(private _auth: AuthService, private _vstsService: VstsService) {
         super();
     }
 
@@ -32,7 +33,7 @@ export class WorkItemLogic extends BaseLogic {
      * @returns {Observable<WorkItem[]>} the signed in user's work items
      */
     public getUserWorkItems(): Observable<WorkItem[]> {
-        let query: string = `Select [System.Id] From WorkItems Where [System.AssignedTo] = '${this.getUserEmail()}' And [System.State]='Active' And [System.WorkItemType]='Task'`;
+        let query: string = `Select [System.Id] From WorkItems Where [System.AssignedTo] = '${this._auth.user.email}' And [System.State]='Active' And [System.WorkItemType]='Task'`;
 
         return this._vstsService.runFlatWorkItemQuery(query).flatMap(
             (ids) => this._vstsService.getWorkItems(ids)

@@ -1,4 +1,5 @@
-import { Component, NgZone, ElementRef, ViewChild } from "@angular/core";
+import { Component, NgZone, ElementRef, ViewChild, OnInit, OnDestroy } from "@angular/core";
+import { RouterExtensions } from "nativescript-angular/router";
 
 import { convertMsToRoundedHours, convertMsToReadableTime } from "../../shared/time/time-conversions";
 import { InputTimer } from "../../shared/time/input-timer";
@@ -6,19 +7,42 @@ import { TimeTrackerComponent } from "../../components/time-tracker/time-tracker
 
 import { TextField } from "ui/text-field";
 
-import { WorkItem, WorkItemLogic, WORK_ITEM_PROVIDERS } from "../../shared/work-item/work-item.barrel";
+import { WorkItem, WorkItemService, WORK_ITEM_PROVIDERS } from "../../shared/work-item/work-item";
+import { AuthService, AUTH_SERVICE_PROVIDERS } from "../../shared/auth/auth";
+
+import * as Rx from "rxjs";
 
 @Component({
     selector: "tracker",
-    providers: [WorkItemLogic, WORK_ITEM_PROVIDERS],
+    providers: [WorkItemService, WORK_ITEM_PROVIDERS, AuthService, AUTH_SERVICE_PROVIDERS],
     directives: [TimeTrackerComponent],
     templateUrl: "pages/tracker/tracker.html",
     styleUrls: ["pages/tracker/tracker-common.css", "pages/tracker/tracker.css"]
 })
-export class TrackerPage {
+export class TrackerPage implements OnInit, OnDestroy {
 
     @ViewChild("workItemNumberField") private workItemNumberField: ElementRef;
     @ViewChild(TimeTrackerComponent) private timeTracker: TimeTrackerComponent;
+
+    private signOutSubscription: Rx.Subscription;
+
+    private setupSignOutSubscription(): void {
+        this.signOutSubscription = this._auth.signOutComplete.subscribe(() => this._router.navigate(["/sign-in"], { clearHistory: true }));
+    }
+
+    private tearDownSignOutSubscription(): void {
+        if (this.signOutSubscription !== null && this.signOutSubscription.isUnsubscribed === false) {
+            this.signOutSubscription.unsubscribe();
+        }
+    }
+
+    public ngOnInit(): void {
+        this.setupSignOutSubscription();
+    }
+
+    public ngOnDestroy(): void {
+        this.tearDownSignOutSubscription();
+    }
 
     // Work Item vars
     private workItemNumber: string;
@@ -34,10 +58,14 @@ export class TrackerPage {
     // user work items
     private userWorkItems: WorkItem[];
 
-    constructor(private _zone: NgZone, private _workItemLogic: WorkItemLogic) {
+    constructor(private _zone: NgZone, private _workItemLogic: WorkItemService, private _auth: AuthService, private _router: RouterExtensions) {
         this.workItemInputWaitTimer = new InputTimer(() => this.retrieveWorkItem(), 700);
         this.timeLog = [];
         this.resetTimerDisplay();
+    }
+
+    private signOut(event: any): void {
+        this._auth.signOut();
     }
 
     private onTimerStarted(): void {

@@ -1,11 +1,10 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild, NgZone } from "@angular/core";
-import { Router } from "@angular/router";
-import { NS_ROUTER_DIRECTIVES, RouterExtensions} from "nativescript-angular/router";
-import { AuthService } from "../../shared/auth/auth.service";
+import { RouterExtensions } from "nativescript-angular/router";
+import { AuthService, AUTH_SERVICE_PROVIDERS } from "../../shared/auth/auth";
 
 import { BasePage } from "../base-page.component";
 
-import { User } from "../../shared/user/user.model";
+import { User } from "../../shared/user/user";
 import { Page } from "ui/page";
 import { TextField } from "ui/text-field";
 
@@ -16,7 +15,7 @@ declare var android: any;
 
 @Component({
   selector: "login",
-  providers: [AuthService, NS_ROUTER_DIRECTIVES],
+  providers: [AuthService, AUTH_SERVICE_PROVIDERS],
   templateUrl: "pages/signin/signin.html",
   styleUrls: ["pages/signin/signin-common.css", "pages/signin/signin.css"]
 })
@@ -36,13 +35,10 @@ export class SignInPage extends BasePage implements OnInit, OnDestroy {
   private signInCompleteSubscription: Rx.Subscription;
   private signInFailedSubscription: Rx.Subscription;
 
-  constructor(protected _page: Page, private _zone: NgZone, private _authService: AuthService, private _router: Router, private nav: RouterExtensions) {
+  constructor(protected _page: Page, private _zone: NgZone, private _authService: AuthService, private nav: RouterExtensions) {
     super(_page);
 
     this.user = new User();
-    this.user.password = "bhTravel528*";
-    this.user.email = "sgerstl@bhtp.com";
-    // this.user.instance = "bhsc";
   }
 
   public ngOnInit(): void {

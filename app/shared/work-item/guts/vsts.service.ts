@@ -1,17 +1,19 @@
 import { Injectable } from "@angular/core";
-import { BaseService } from "../../base.service";
+import { Http, Headers, Response } from "@angular/http";
+import { BaseAuthService } from "../../base-auth.service";
 import { Observable } from "rxjs/Rx";
 import "rxjs/add/operator/map";
 
-import { Http, Headers, Response } from "@angular/http";
-import { WorkItem, WorkItemFieldDefinitions } from "../models/work-item.model";
-import { WorkItemUpdateList } from "../models/work-item-update.model";
+import { WorkItem, WorkItemFieldDefinitions } from "./work-item.model";
+import { WorkItemUpdateList } from "./work-item-update.model";
+
+import { AuthService } from "../../auth/guts/auth.service";
 
 @Injectable()
-export class VstsService extends BaseService {
+export class VstsService extends BaseAuthService {
 
-    constructor(private _http: Http) {
-        super();
+    constructor(protected _auth: AuthService, private _http: Http) {
+        super(_auth);
     }
 
     /**

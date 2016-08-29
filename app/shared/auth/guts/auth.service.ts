@@ -1,24 +1,35 @@
 import { Injectable, Output, EventEmitter } from "@angular/core";
 import { Http, Headers, Response } from "@angular/http";
 import { Observable } from "rxjs/Rx";
-import { Config } from "../../shared/config";
-import { User } from "../user/user.model";
-import { base64Encode } from "../../utils/base64.util";
-import { BaseService } from "../base.service";
-
-import { VstsService } from "../work-item/services/vsts.service";
+import { Config } from "../../../shared/config";
+import { User } from "../../user/guts/user.model";
+import { base64Encode } from "../../../utils/base64.util";
+import { BaseService } from "../../base.service";
+import { StorageService } from "../../storage/guts/storage.service";
 
 @Injectable()
 export class AuthService extends BaseService {
 
     @Output() public signInComplete: EventEmitter<any> = new EventEmitter(false);
     @Output() public signInFailed: EventEmitter<string> = new EventEmitter<string>(false);
-    // @Output() public signOutComplete: EventEmitter<any> = new EventEmitter(false);
+    @Output() public signOutComplete: EventEmitter<any> = new EventEmitter();
 
     private authFailedeMessage: string = "We could not locate your account. Check you information and try again";
 
-    constructor(private _http: Http) {
+    constructor(private _http: Http, private _storageService: StorageService) {
         super();
+    }
+
+    public get isSignedIn(): boolean {
+        return this._storageService.authToken !== null;
+    }
+
+    public get authToken(): string {
+        return this._storageService.authToken;
+    }
+
+    public get user(): User {
+        return this._storageService.user;
     }
 
     public signIn(user: User): void {
@@ -38,13 +49,18 @@ export class AuthService extends BaseService {
             );
     }
 
+    public signOut(): void {
+        this._storageService.removeAuthToken();
+        this._storageService.removeUser();
+        this.signOutComplete.emit(null);
+    }
+
     private onSignInSuccess(res: Response, user: User): void {
         if(res.status === 200) {
             let token: string = this.makeToken(user);
 
-            Config.instance = user.instance;
-            Config.token = token;
-            Config.userEmail = user.email;
+            this._storageService.authToken = token;
+            this._storageService.user = user;
 
             this.signInComplete.emit(null);
         }
@@ -54,7 +70,7 @@ export class AuthService extends BaseService {
     }
 
     private onSignInFailure(errorRes: Response): void {
-       let errorMessage: string = "Something went wrong wile trying to log you in";
+       let errorMessage: string = "Something went wrong while trying to log you in";
 
         if (errorRes.status === 401) {
             errorMessage = this.authFailedeMessage;

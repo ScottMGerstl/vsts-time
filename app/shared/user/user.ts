@@ -1,0 +1,1 @@
+export { User } from "./guts/user.model";

@@ -7,9 +7,10 @@
     <Label row="0" class="timer-text" [text]="ellapsedTime"></Label>
   </GridLayout>
 
+  <Button (tap)="signOut($event)" text="Sign out"></Button>
+
   <TextField #workItemNumberField hint="Work item number" keyboardType="number" [editable]="!isTracking" autocorrect="false"
     autoCapitalizationType="none" (propertyChange)="onWorkItemNumberChanged($event)"></TextField>
-
 
   <StackLayout [class.hidden]="!workItem">
     <Label [text]="workItem?.title"></Label>

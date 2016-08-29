@@ -4,7 +4,7 @@ import { SignInPage } from "./pages/signin/signin.component";
 import { TrackerPage } from "./pages/tracker/tracker.component";
 
 export const routes: RouterConfig = [
-    { path: "", component: SignInPage },
+    { path: "sign-in", component: SignInPage },
     { path: "tracker", component: TrackerPage }
 ];
 
