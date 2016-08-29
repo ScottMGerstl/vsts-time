@@ -1,7 +1,16 @@
 <StackLayout>
+
+  <GridLayout rows="*" class="timer">
+    <Label row="0" class="timer-progress-overtime"></Label>
+    <Label row="0" class="timer-progress-remaining"></Label>
+    <Label row="0" class="timer-center-circle"></Label>
+    <Label row="0" class="timer-text" [text]="ellapsedTime"></Label>
+  </GridLayout>
+
+  <Button (tap)="signOut($event)" text="Sign out"></Button>
+
   <TextField #workItemNumberField hint="Work item number" keyboardType="number" [editable]="!isTracking" autocorrect="false"
     autoCapitalizationType="none" (propertyChange)="onWorkItemNumberChanged($event)"></TextField>
-
 
   <StackLayout [class.hidden]="!workItem">
     <Label [text]="workItem?.title"></Label>
@@ -14,7 +23,8 @@
   </StackLayout>
 
   <time-tracker (timerStarted)="onTimerStarted($event)"
-    (timerStopped)="onTimerStopped($event)">
+    (timerStopped)="onTimerStopped($event)"
+    (timerTicked)="onTimerTicked($event)">
   </time-tracker>
 
   <Button text="Get my work items" (tap)="getUserWorkItems()"></Button>

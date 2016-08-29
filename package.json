@@ -8,7 +8,7 @@
   "nativescript": {
     "id": "org.nativescript.vststime",
     "tns-android": {
-      "version": "2.2.0"
+      "version": "2.3.0-next-2016-08-18-979"
     }
   },
   "dependencies": {
@@ -21,10 +21,11 @@
     "@angular/platform-server": "2.0.0-rc.4",
     "@angular/router": "3.0.0-beta.2",
     "@angular/router-deprecated": "2.0.0-rc.2",
+    "email-validator": "^1.0.4",
     "moment": "^2.14.1",
     "nativescript-angular": "^0.3.0",
     "reflect-metadata": "^0.1.5",
-    "tns-core-modules": "2.2.0"
+    "tns-core-modules": "^2.3.0-2016-08-18-3928"
   },
   "devDependencies": {
     "babel-traverse": "6.13.0",

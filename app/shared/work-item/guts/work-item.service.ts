@@ -1,18 +1,19 @@
 import { Injectable, provide } from "@angular/core";
-import { BaseLogic } from "../../base.logic";
+import { BaseService } from "../../base.service";
+import { AuthService } from "../../auth/guts/auth.service";
 import { Observable } from "rxjs/Rx";
 import "rxjs/add/operator/map";
 
-import { WorkItem, WorkItemTypes, WorkItemStatuses } from "../models/work-item.model";
-import { WorkItemUpdate, WorkItemUpdateList } from "../models/work-item-update.model";
+import { WorkItem, WorkItemTypes, WorkItemStatuses } from "./work-item.model";
+import { WorkItemUpdate, WorkItemUpdateList } from "./work-item-update.model";
 import { convertMsToRoundedHours } from "../../time/time-conversions";
 
-import { VstsService } from "../services/vsts.service";
+import { VstsService } from "./vsts.service";
 
 @Injectable()
-export class WorkItemLogic extends BaseLogic {
+export class WorkItemService extends BaseService {
 
-    constructor(private _vstsService: VstsService) {
+    constructor(private _auth: AuthService, private _vstsService: VstsService) {
         super();
     }
 
@@ -32,16 +33,12 @@ export class WorkItemLogic extends BaseLogic {
      * @returns {Observable<WorkItem[]>} the signed in user's work items
      */
     public getUserWorkItems(): Observable<WorkItem[]> {
-        let query: string = `Select [System.Id] From WorkItems Where [System.AssignedTo] = '${this.getUserEmail()}' And [System.State]='Active' And [System.WorkItemType]='Task'`;
+        let query: string = `Select [System.Id] From WorkItems Where [System.AssignedTo] = '${this._auth.user.email}' And [System.State]='Active' And [System.WorkItemType]='Task'`;
 
         return this._vstsService.runFlatWorkItemQuery(query).flatMap(
             (ids) => this._vstsService.getWorkItems(ids)
         );
     }
-
-    // Stories: 11052,11053,11054,11055
-    // Bugs: 11056,11057,11058,11059
-    // Tasks: 11061,11062,11063
 
     /**
      * Updates the remaining and completed times, and possibly the status, on a work item.
@@ -83,5 +80,19 @@ export class WorkItemLogic extends BaseLogic {
         }
 
         return this._vstsService.updateWorkItem(workItemToUpdate.id, updates);
+    }
+
+    /**
+     * Closes the work item
+     *
+     * @param {number} id the work item id
+     * @returns {Observable<WorkItem>} the updated work item
+     */
+    public closeWorkItem(workItemId: number): Observable<WorkItem> {
+        let updates: WorkItemUpdateList = new WorkItemUpdateList();
+
+        updates.addStatus(WorkItemStatuses.Closed);
+
+        return this._vstsService.updateWorkItem(workItemId, updates);
     }
 }

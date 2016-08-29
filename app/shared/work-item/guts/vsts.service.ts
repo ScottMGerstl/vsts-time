@@ -1,17 +1,19 @@
 import { Injectable } from "@angular/core";
-import { BaseService } from "../../base.service";
+import { Http, Headers, Response } from "@angular/http";
+import { BaseAuthService } from "../../base-auth.service";
 import { Observable } from "rxjs/Rx";
 import "rxjs/add/operator/map";
 
-import { Http, Headers, Response } from "@angular/http";
-import { WorkItem, WorkItemFieldDefinitions } from "../models/work-item.model";
-import { WorkItemUpdateList } from "../models/work-item-update.model";
+import { WorkItem, WorkItemFieldDefinitions } from "./work-item.model";
+import { WorkItemUpdateList } from "./work-item-update.model";
+
+import { AuthService } from "../../auth/guts/auth.service";
 
 @Injectable()
-export class VstsService extends BaseService {
+export class VstsService extends BaseAuthService {
 
-    constructor(private _http: Http) {
-        super();
+    constructor(protected _auth: AuthService, private _http: Http) {
+        super(_auth);
     }
 
     /**
@@ -26,7 +28,7 @@ export class VstsService extends BaseService {
 
         return this.getWorkItems([id])
             .map(data => data[0])
-            .catch(this.handleErrors);
+            .catch(this.handleObservableErrors);
     }
 
     /**
@@ -46,7 +48,7 @@ export class VstsService extends BaseService {
         return this._http.patch(url, updateDefinition.resolveToArray(), { headers: headers })
             .map(res => res.json())
             .map(data => this.mapToWorkItem(data))
-            .catch(this.handleErrors);
+            .catch(this.handleObservableErrors);
     }
 
     /**
@@ -70,7 +72,7 @@ export class VstsService extends BaseService {
                     });
                     return workItems;
             })
-            .catch(this.handleErrors)
+            .catch(this.handleObservableErrors)
     }
 
     /**
@@ -84,7 +86,7 @@ export class VstsService extends BaseService {
         let url: string = this.createUrl(`wit/wiql?api-version=1.0`);
         let body: any = { query: queryString };
 
-        let headers = this.getHeadersWithAuth();
+        let headers: Headers = this.getHeadersWithAuth();
         headers.append("Content-Type", "application/json");
 
         return this._http.post(url, body, { headers: headers })
@@ -94,7 +96,7 @@ export class VstsService extends BaseService {
                 data.workItems.forEach(element => { ids.push(element.id); });
                 return ids;
             })
-            .catch(this.handleErrors);
+            .catch(this.handleObservableErrors);
     }
 
     /**

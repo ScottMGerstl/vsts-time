@@ -1,0 +1,56 @@
+.layout {
+    width: 75%;
+}
+
+.logo-container {
+    height: 25%;
+    margin-top: 40;
+    margin-bottom: 15;
+}
+
+.logo {
+    height: 130;
+    width: 130;
+}
+
+.logo-title {
+    font-size: 40;
+    color: #000000;
+    vertical-align: center;
+    text-align: left;
+}
+
+.instance-container {
+    margin-bottom: 30;
+    height: auto;
+}
+
+.instance-input-container {
+    font-size: 22;
+    height: auto;
+    vertical-align: top;
+}
+
+.instance-field {
+    text-align: right;
+}
+
+.domain-label {
+    color: #cccccc;
+    vertical-align: center;
+    margin-bottom: 2;
+}
+
+.signin-button {
+    color: #ffffff;
+    background-color: #9c27b0;
+    width: 100%;
+    padding: 20;
+    margin-top: 45;
+    font-size: 20;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.sign-in-activity-indicator {
+    margin-top: 45;
+}

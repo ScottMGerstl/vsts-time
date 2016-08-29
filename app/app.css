@@ -1,4 +1,27 @@
-﻿button, label, stack-layout {
+﻿/*StackLayout {
+    border-color: green;
+    border-width: 1;
+}
+
+GridLayout {
+    border-color: blue;
+    border-width: 1;
+}*/
+
+ActionBar {
+    background-color: #9c27b0;
+    color: white;
+}
+
+.field-error {
+    color: #D50000;
+    height: auto;
+    horizontal-align: left;
+    margin-left: 5;
+    margin-top: -7;
+}
+
+button, label, stack-layout {
     horizontal-align: center;
 }
 
