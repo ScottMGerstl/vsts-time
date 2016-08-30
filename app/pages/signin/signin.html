@@ -7,7 +7,7 @@
   <StackLayout class="instance-container">
     <GridLayout columns="*, auto" class="instance-input-container">
       <TextField #instance col="0" hint="instance" autoCapitalizationType="none" autocorrect="false" [(ngModel)]="user.instance"
-        class="instance-field"></TextField>
+        class="instance-field" (loaded)="textFieldLoaded(instance)"></TextField>
       <Label col="1" text=".visualstudio.com" class="domain-label"></Label>
     </GridLayout>
 
@@ -15,10 +15,10 @@
   </StackLayout>
 
   <TextField #email hint="email address" keyboardType="email" [(ngModel)]="user.email" autocorrect="false" autoCapitalizationType="none"
-    class="user-email"></TextField>
+    class="user-email" (loaded)="textFieldLoaded(email)"></TextField>
   <Label class="field-error" [text]="emailError"></Label>
 
-  <TextField #password hint="password" secure="true" [(ngModel)]="user.password" class="user-password"></TextField>
+  <TextField #password hint="password" secure="true" [(ngModel)]="user.password" class="user-password" (loaded)="textFieldLoaded(password)"></TextField>
   <Label class="field-error" [text]="passwordError"></Label>
 
   <Button text="Sign in" class="signin-button" [class.hidden]="isSigningIn === true" (tap)="onSignInTapped()"></Button>

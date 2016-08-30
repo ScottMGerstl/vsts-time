@@ -44,8 +44,8 @@ export class SignInPage extends BasePage implements OnInit, OnDestroy {
   public ngOnInit(): void {
     this.isSigningIn = false;
 
-    this.setUiStyles();
     this.setupAuthSubscriptions();
+    this.setPageStyles();
   }
 
   public ngOnDestroy(): void {
@@ -133,17 +133,12 @@ export class SignInPage extends BasePage implements OnInit, OnDestroy {
     return result;
   }
 
-  private setUiStyles(): void {
+  private textFieldLoaded(textField: any): void {
+    this.setHintColor(textField);
+  }
+
+  private setPageStyles(): void {
     this._page.actionBarHidden = true;
-
-    let instanceField = (<TextField>this.instance.nativeElement);
-    this.setHintColor(instanceField);
-
-    let emailField = (<TextField>this.email.nativeElement);
-    this.setHintColor(emailField);
-
-    let passwordField = (<TextField>this.password.nativeElement);
-    this.setHintColor(passwordField);
   }
 
   private setupAuthSubscriptions(): void {
